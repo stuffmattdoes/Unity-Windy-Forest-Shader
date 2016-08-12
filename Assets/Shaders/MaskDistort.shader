@@ -55,11 +55,11 @@
 
 			// Wavy calculations
 			float2 uv = IN.uv_MainTex;
-			uv.x += sin((uv.x + uv.y) * _TileX + _Time.g * _SpeedX) * _Scale;
+			uv.x += sin((uv.x - uv.y) * _TileX + _Time.g * _SpeedX) * _Scale;
 
 			// Mask calculations
 			float2 uvMask = IN.uv_Mask;
-			uvMask.x += sin((uvMask.x + uvMask.y) * _TileX + _Time.g * _SpeedX) * _Scale;
+			uvMask.x += sin((uvMask.x - uvMask.y) * _TileX + _Time.g * _SpeedX) * _Scale;
 			half4 mask = tex2D (_Mask, uvMask);
 
 			half4 c = tex2D (_MainTex, uv);
