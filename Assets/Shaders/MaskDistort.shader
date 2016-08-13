@@ -30,7 +30,7 @@
 		LOD 200
 
 		CGPROGRAM
-		#pragma surface surf Lambert alpha alphatest:_Cutoff
+		#pragma surface surf Lambert alpha
 
 		sampler2D _RampTex;
 		sampler2D _MainTex;
@@ -62,17 +62,17 @@
 			float2 uvMask = IN.uv_Mask;
 			uvMask.x += sin((uvMask.x - uvMask.y) * _TileX + _Time.g * _SpeedX) * _Scale;
 			half4 mask = tex2D (_Mask, uvMask);
-			half4 c = tex2D (_MainTex, uv);		// half4 refers to a 4 component vector using half precision floating point coordinates
+			half4 c = tex2D (_MainTex, uv);
 
 			// Apply our color ramp
 			fixed tempData = tex2D(_MainTex, uv);
-			tempData += 0.05;
-			tempData *= 0.95;
-			fixed2 rampUV = fixed2(tempData, 0);
-            fixed3 heatColor = tex2D(_RampTex, rampUV);
+			c += 0.05;
+			c *= 0.95;
+			fixed2 rampUV = fixed2(c.r, 0);
+            fixed3 rampColor = tex2D(_RampTex, rampUV);
 
 //			o.Albedo = c.rgb;
-			o.Albedo = heatColor.rgb;
+			o.Albedo = rampColor.rgb;
 			o.Alpha = mask.a;
 		}
 
