@@ -1,8 +1,10 @@
 ﻿Shader "Custom/Wavy Forest" {
 
 	// TODO
-	// 1. Distribute X tiling by consistent steps instead of texture width to ensure consistency across multiple textures
-	//		^ Replace "_TileX" with "_DensityX" and make it happen
+	// - Add wave texture to simulate rolling wind front
+
+	// DONE
+	// - Add distortion mask
 
 	Properties {
 
@@ -12,15 +14,17 @@
 		// 3. The variable type 2D
 		// 4. The default value "white"
 
+		_Color ("Color Tint", Color) = (1,1,1,1)
 		_RampTex ("Color Ramp", 2D) = "gray" {}
-		_MainTex ("Base Texture", 2D) = "white" {}
-//		_DarkTex ("Shadow Texture", 2D) = "black" {}
-		_CombTex ("Shadow & Mask Texture", 2D) = "black" {}
+		_MainTex ("Base Texture (RGB)", 2D) = "white" {}
+		_MaskTex ("Mask Texture (R)", 2D) = "gray" {}
+		_DarkTex ("Shadow Texture (G)", 2D) = "black" {}
 		_DarkAmount ("Shadow Amount", range(0.1, 1)) = 0.5
-//		_Mask ("Mask", 2D) = "white" {}
-		_Cutoff ("Alpha Cutoff", range(0, 1)) = 0.1
+		_DistMaskTex ("Distortion Mask (B)", 2D) = "black" {}
+		_DistMaskAmount ("Distortion Mask Amount", range(0, 1)) = 0.5
+		_WaveTex ("Wave Texture (A)", 2D) = "white" {}
 		_SpeedX ("Speed X", float) = 1.5
-		_Scale ("Scale", range(0, 1)) = 0.5
+		_Intensity ("ScalIntensity", range(0, 1)) = 0.5
 		_TileX ("Tile X", float) = 5
 	}
 
@@ -37,45 +41,50 @@
 
 		sampler2D _RampTex;
 		sampler2D _MainTex;
-//		float4 uv_MainTex_ST;
-		sampler2D _CombTex;
-//		float4 uv_CombTex_ST;
+		sampler2D _MaskTex;
+		sampler2D _DarkTex;
+		sampler2D _DistMaskTex;
 
 		float _DarkAmount;
 		float _SpeedX;
-		float _Scale;
+		float _Intensity;
 		float _TileX;
+		float _DistMaskAmount;
+
+		half4 _Color;
 
 		struct Input {
 			float2 uv_MainTex;
-			float2 uv_CombTex;
+			float2 uv_MaskTex;
+			float2 uv_DarkTex;
+			float2 uv_DistMaskTex;
 		};
 
 		void surf (Input IN, inout SurfaceOutput o)
 		{	
 
 			// Adjust a few values to something reasonable
-			_Scale *= 0.01;
+			_Intensity *= 0.01;
 			_DarkAmount *= 35;
 
-			float2 uv2 = IN.uv_CombTex;
+			float2 uvDistMask = IN.uv_DistMaskTex;
+			half4 distMask = tex2D (_DistMaskTex, uvDistMask);
 
 			// Apply our shadow area
-			uv2.x += sin((uv2.x - uv2.y) * _TileX + _Time.g * _SpeedX) * _Scale;
-			half4 dark = tex2D (_CombTex, uv2);
+			float2 uvDark = IN.uv_DarkTex;
+			uvDark.x += sin((uvDark.x - uvDark.y) * _TileX + _Time.g * _SpeedX) * _Intensity * ( 1 - distMask.b * _DistMaskAmount);
+			half4 dark = tex2D (_DarkTex, uvDark);
 
 			// Wavy calculations
-			float2 uv = IN.uv_MainTex;
-			uv.x += sin((uv.x - uv.y) * _TileX + _Time.g * _SpeedX) * _Scale;
+			float2 uvMain = IN.uv_MainTex;
+			uvMain.x += sin((uvMain.x - uvMain.y) * _TileX + _Time.g * _SpeedX) * _Intensity * ( 1 - distMask.b * _DistMaskAmount);
 
 			// Mask calculations
-//			float2 uvMask = IN.uv_CombTex;
-			uv2.x += sin((uv2.x - uv2.y) * _TileX + _Time.g * _SpeedX) * _Scale;
-			half4 mask = tex2D (_CombTex, uv2);
-			half4 c = tex2D (_MainTex, uv);
+			float2 uvMask = IN.uv_MaskTex;
+			uvMask.x += sin((uvMask.x - uvMask.y) * _TileX + _Time.g * _SpeedX) * _Intensity * ( 1 - distMask.b * _DistMaskAmount);
+			half4 mask = tex2D (_MaskTex, uvMask);
+			half4 c = tex2D (_MainTex, uvMain);
 
-			// Apply our color ramp
-			fixed tempData = tex2D(_MainTex, uv);
 
 			// Increase our brightness by a bit
 			c += 0.05;
@@ -86,10 +95,10 @@
 			// Now let's darken the intended shadow areas with our shadow texture
 			c -= (dark.g / _DarkAmount);
 
-//			fixed2 rampUV = fixed2(c.r,);
+			// Apply our color ramp
             fixed3 rampColor = tex2D(_RampTex, c.rgb);
 
-			o.Albedo = rampColor.rgb;
+			o.Albedo = rampColor.rgb * _Color;
 			o.Alpha = mask.r;
 		}
 
