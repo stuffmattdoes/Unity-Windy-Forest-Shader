@@ -22,9 +22,9 @@
 		_DarkAmount ("Shadow Amount", range(0.1, 1)) = 0.5
 		_DistMaskTex ("Distortion Mask (B)", 2D) = "black" {}
 		_DistMaskAmount ("Distortion Mask Amount", range(0, 1)) = 0.5
-		_WaveTex ("Wave Texture (A)", 2D) = "white" {}
+//		_WaveTex ("Wave Texture (A)", 2D) = "white" {}
 		_SpeedX ("Speed X", float) = 1.5
-		_Intensity ("ScalIntensity", range(0, 1)) = 0.5
+		_Intensity ("Waviness", range(0, 1)) = 0.5
 		_TileX ("Tile X", float) = 5
 	}
 
