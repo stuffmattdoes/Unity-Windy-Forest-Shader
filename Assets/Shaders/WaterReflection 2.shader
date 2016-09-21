@@ -5,10 +5,12 @@
 		_Color("Tint", color) = (1, 1, 1, 1)
 		_DisplaceTex0("Main Wave", 2D) = "white" {}
 		_Magnitude0 ("Main Wave Distortion", Range(0,1)) = 0.5
+//		_Speed0 ("Main Wave Speed", Range(0,1)) = 0.5
 		_Speed0 ("Main Wave Speed", float) = 5
 		_Direction0 ("Main Wave Direction", vector) = (1, 1, 1)
 		_DisplaceTex1("Secondary Wave", 2D) = "white" {}
 		_Magnitude1 ("Secondary Wave Distortion", Range(0,1)) = 0.5
+//		_Speed1 ("Secondary Wave Speed", Range(0,1)) = 0.5
 		_Speed1 ("Secondary Wave Speed", float) = 5
 		_Direction1 ("Secondary Wave Direction", vector) = (1, 1, 1)
 	}
@@ -62,8 +64,12 @@
 			float4 _Color;
 			sampler2D _DisplaceTex0;
 			float _Magnitude0;
+			float _Speed0;
+			vector _Direction0;
 			sampler2D _DisplaceTex1;
 			float _Magnitude1;
+			float _Speed1;
+			vector _Direction1;
 
 			// UV Variables
 			// _ST variables are automatically populated with the texture scale (x,y) and offset (z,w) values
@@ -89,10 +95,23 @@
 
 			float4 frag(v2f i) : SV_Target {
 
-				float2 disp0 = tex2D(_DisplaceTex0, i.uv1).xy;
+				// The first displacement texture
+				// uv animation
+				float2 distpuv0 = float2(
+					i.uv1.x + _Time.x * _Direction0.x,
+					i.uv1.y + _Time.y * _Direction0.y
+				);
+
+				float2 disp0 = tex2D(_DisplaceTex0, distpuv0).xy;
 				disp0 = ((disp0 * 2) - 1) * _Magnitude0;
 
-				float2 disp1 = tex2D(_DisplaceTex1, i.uv2).xy;
+				// The second displacement texture
+				float2 distpuv1 = float2(
+					i.uv2.x + _Time.x * _Direction1.x,
+					i.uv2.y + _Time.y * _Direction1.y
+				);
+
+				float2 disp1 = tex2D(_DisplaceTex1, distpuv1).xy;
 				disp1 = ((disp1 * 2) - 1) * _Magnitude1;
 
 				float disp2 = disp0 + disp1;
