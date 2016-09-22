@@ -3,6 +3,8 @@
 	Properties {
 		_MainTex("Main Texture", 2D) = "white" {}
 		_Color("Tint", color) = (1, 1, 1, 1)
+//		_Glossiness ("Smoothness", Range(0,1)) = 0.5
+//		_Metallic ("Metallic", Range(0,1)) = 0.5
 		_DisplaceTex0("Main Wave", 2D) = "white" {}
 		_Magnitude0 ("Main Wave Distortion", Range(0,1)) = 0.5
 //		_Speed0 ("Main Wave Speed", Range(0,1)) = 0.5
@@ -22,11 +24,12 @@
 		}
 
 		pass {
+
 			CGPROGRAM
 			#pragma vertex vert		// Tells the shader which function is our Vertex shader function
 			#pragma fragment frag	// Tells the shader which function is our fragment shader function
 
-			#include "UnityCG.cginc"
+			#include "UnityCG.cginc"	// Unity shader library that includes some nice properties/methods for us
 
 
 			// -------------
@@ -62,6 +65,8 @@
 
 			sampler2D _MainTex;
 			float4 _Color;
+//			half _Glossiness;
+//			half _Metallic;
 			sampler2D _DisplaceTex0;
 			float _Magnitude0;
 			float _Speed0;
@@ -87,6 +92,9 @@
 				o.uv = TRANSFORM_TEX(v.uv, _MainTex);			// Unity function - allows access to tiling/offset in material inspector (requires texture property appended with "_ST")
 				o.uv1 = TRANSFORM_TEX(v.uv1, _DisplaceTex0);
 				o.uv2 = TRANSFORM_TEX(v.uv2, _DisplaceTex1);
+//				o.Alpha = _Color.a;
+//				o.Metallic = _Metallic;
+//				o.Smoothness = _Glossiness;
 				return o;
 			}
 
