@@ -8,7 +8,7 @@ public class ScreenSpaceRefractions : MonoBehaviour
     [HideInInspector]
     [SerializeField]
     private Camera _camera;
-    private int _downResFactor = 1;
+//    private int _downResFactor = 1;
 
     [SerializeField]
     [Range(0, 1)]
