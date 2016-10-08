@@ -26,7 +26,7 @@ Subshader {
 CGPROGRAM
 #pragma vertex vert
 #pragma fragment frag
-//#pragma multi_compile_fog
+#pragma multi_compile_fog
 #pragma multi_compile WATER_REFRACTIVE WATER_REFLECTIVE WATER_SIMPLE
 
 #if defined (WATER_REFLECTIVE) || defined (WATER_REFRACTIVE)

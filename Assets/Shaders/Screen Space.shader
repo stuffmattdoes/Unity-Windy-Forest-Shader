@@ -23,6 +23,7 @@
 
 		void surf (Input IN, inout SurfaceOutput o) {
 			o.Albedo = tex2D (_MainTex, IN.uv_MainTex).rgb;
+
 			float2 screenUV = IN.screenPos.xy / IN.screenPos.w;
 			screenUV *= float2(1,1);
 			o.Albedo *= tex2D (_Detail, screenUV).rgb * 2;

@@ -98,7 +98,8 @@ Shader "Custom/Reflection" {
 				half fresnelFac = dot( i.viewDir, bump );
 				
 				// perturb reflection/refraction UVs by bumpmap, and lookup colors
-				float4 uv1 = i.ref; uv1.xy += bump * _ReflDistort / 2;
+				float4 uv1 = i.ref;
+				uv1.xy += bump * _ReflDistort / 2;
 				half4 refl = tex2Dproj( _ReflectionTex, UNITY_PROJ_COORD(uv1) );
 				
 				// final color is between refracted and reflected based on fresnel
