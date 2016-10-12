@@ -72,7 +72,7 @@
 
 				float2 distuv = float2(
 					i.uv1.x,
-					i.uv1.y + _Time.x
+					i.uv1.y - _Time.x
 				);
 
 				float2 disp0 = tex2D(_WaveDisplacement0, distuv).xy;
