@@ -4,7 +4,7 @@
 		_DetailTex ("Detail Texture", 2D) = "grey" {}
 		_DetailMag ("Detail Intensity", Range(0, 1)) = 0.5
 		_RampTex ("Color Ramp Texture", 2D) = "grey" {}
-		_FresnelAmount ("Fresnel Amount", Range(-100, 100)) = 0
+//		_FresnelAmount ("Fresnel Amount", Range(-100, 100)) = 0
 		_WaveDisplacement ("Wave Displacement", 2D) = "black" {}
 		_WaveMag ("Wave Intensity", Range(0, 1)) = 0.5
 		_WaveSpeed ("Wave Speed", float) = 1
@@ -48,7 +48,7 @@
 		sampler2D _DetailTex;
 		float _DetailMag;
 		sampler2D _RampTex;
-		float _FresnelAmount;
+//		float _FresnelAmount;
 		sampler2D _WaveDisplacement;
 		float _WaveMag;
 		float _WaveSpeed;
@@ -72,27 +72,33 @@
 			// Detail Texture
 			float2 screenUV = IN.screenPos.xy / IN.screenPos.w;
 			half4 detailTex = tex2D (_DetailTex, screenUV + waveDisp / 2);
-//			half4 detailTex = tex2D (_DetailTex, screenUV);
 			detailTex = ((detailTex * 2) - 1) * _DetailMag / 5;
 
 			// Reflection (texture obtained from script)
 			float4 uv1 = IN.screenPos;
 			uv1.xy += _ReflDistort * waveDisp * 5;
 			half4 refl = tex2Dproj( _ReflectionTex, UNITY_PROJ_COORD(uv1));
-			refl = ((refl * 2) - 1) * _ReflAmount;								// Modify by reflection amount parameter
+			refl = refl.r + refl.g + refl.b / 3;
+			refl = ((refl * 2) - 1) * _ReflAmount;				// Modify by reflection amount parameter
 
 			// Fresnel lighting
 			half3 bumpTex = UnpackNormal(tex2D( _WaveDisplacement, IN.uv_WaveDisplacement )).rgb;
  			half fresnelFac = dot(IN.viewDir, -bumpTex);
 			half4 fres = tex2D(_RampTex, float2(fresnelFac, fresnelFac));
+			fres *= 2;											// Increase our fresnel a wee bit
 
 			// Apply our properties
 			float2 uvFinal = detailTex + waveDisp;
 			half4 col = tex2D(_MainTex, IN.uv_MainTex + uvFinal);
-			fixed3 rampColor = tex2D(_RampTex, col.rgb);			// Ramp Color
-			rampColor += refl / 2;									// Add our reflection
+			fixed3 rampCol = tex2D(_RampTex, col.rgb);			// Ramp Color
+			rampCol += refl;									// Add reflection
+			rampCol *= fres;									// Add fresnel color (color based on view directionality)
 
-			o.Albedo = rampColor * fres * 2;
+//			half3 finalCol;
+//			finalCol = lerp( rampCol, refl, col.a );
+			
+			o.Albedo = rampCol;
+//			o.Albedo = finalCol;
 		}
 
 		ENDCG
