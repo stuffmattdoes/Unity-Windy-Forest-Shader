@@ -68,7 +68,7 @@
 			// Displacement Texture
 			float2 waveDisp = tex2D(_WaveDisplacement, uvDisp);
 			waveDisp = ((waveDisp * 2) - 1) * (_WaveMag / 10);
-			
+
 			// Detail Texture
 			float2 screenUV = IN.screenPos.xy / IN.screenPos.w;
 			half4 detailTex = tex2D (_DetailTex, screenUV + waveDisp / 2);
@@ -78,7 +78,7 @@
 			float4 uv1 = IN.screenPos;
 			uv1.xy += _ReflDistort * waveDisp * 5;
 			half4 refl = tex2Dproj( _ReflectionTex, UNITY_PROJ_COORD(uv1));
-			refl = refl.r + refl.g + refl.b / 3;
+			refl = (refl.r + refl.g + refl.b) / 3;
 			refl = ((refl * 2) - 1) * _ReflAmount;				// Modify by reflection amount parameter
 
 			// Fresnel lighting
@@ -93,12 +93,8 @@
 			fixed3 rampCol = tex2D(_RampTex, col.rgb);			// Ramp Color
 			rampCol += refl;									// Add reflection
 			rampCol *= fres;									// Add fresnel color (color based on view directionality)
-
-//			half3 finalCol;
-//			finalCol = lerp( rampCol, refl, col.a );
 			
 			o.Albedo = rampCol;
-//			o.Albedo = finalCol;
 		}
 
 		ENDCG
